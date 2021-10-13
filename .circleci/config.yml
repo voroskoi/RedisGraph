@@ -121,16 +121,23 @@ commands:
       - setup-executor
       - checkout-all
       - setup-automation
+      - restore_cache:
+          keys:
+            - <<parameters.platform>>-GraphBLAS-build-{{ checksum "deps/GraphBLAS/README.md" }}
       - run:
           name: Build for platform (docker build)
           command: |
             make -C build/docker build DOCKER_SUFFIX=".<<parameters.platform>>" OSNICK=<<parameters.platform>> PACK=1 TEST=1 VERBOSE=1
       - early-return-for-forked-pull-requests
-      - run:
-          name: Build for platform (docker publish)
-          command: |
-            docker login -u redisfab -p $DOCKER_REDISFAB_PWD
-            make -C build/docker build DOCKER_SUFFIX=".<<parameters.platform>>" OSNICK=<<parameters.platform>> PACK=1 TEST=1 VERBOSE=1 PUBLISH=1 DOCKERWRAPPER_EXTRA_VARS="DOCKER_PUSH_ONLY=1"
+#      - run:
+#          name: Build for platform (docker publish)
+#          command: |
+#            docker login -u redisfab -p $DOCKER_REDISFAB_PWD
+#            make -C build/docker build DOCKER_SUFFIX=".<<parameters.platform>>" OSNICK=<<parameters.platform>> PACK=1 TEST=1 VERBOSE=1 PUBLISH=1 DOCKERWRAPPER_EXTRA_VARS="DOCKER_PUSH_ONLY=1"
+      - save_cache:
+          key: <<parameters.platform>>-GraphBLAS-build-{{ checksum "deps/GraphBLAS/README.md" }}
+          paths:
+            - deps/GraphBLAS/build
       - persist-artifacts
 
   vm-build-platforms-steps:
@@ -465,65 +472,66 @@ workflows:
   version: 2
   build_and_package:
     jobs:
-      - build:
-          <<: *context
-          <<: *not-on-integ-branch
-      - coverage:
-          <<: *context
-          <<: *on-any-branch
-      - build_memcheck:
-          <<: *context
-          <<: *on-any-branch
-      - build_macos:
-          <<: *context
-          <<: *on-integ-and-version-tags
+#      - build:
+#          <<: *context
+#          <<: *not-on-integ-branch
+#      - coverage:
+#          <<: *context
+#          <<: *on-any-branch
+#      - build_memcheck:
+#          <<: *context
+#          <<: *on-any-branch
+#      - build_macos:
+#          <<: *context
+#          <<: *on-integ-and-version-tags
       - platform_build:
           <<: *context
-          <<: *on-integ-and-version-tags
+#          <<: *on-integ-and-version-tags
           matrix:
             parameters:
-              platform: [bionic, xenial, centos7, centos8]
-      - build-arm-platforms:
-          <<: *on-integ-and-version-tags
-          context: common
-          matrix:
-            parameters:
-              platform: [bionic]
-      - deploy_branch:
-          <<: *context
-          <<: *on-integ-branch
-          requires:
-            - platform_build
-            - build_macos
-      - release_automation:
-          <<: *context
-          <<: *on-version-tags
-          requires:
-            - deploy_release
-      - deploy_release:
-          <<: *context
-          <<: *on-version-tags
-          requires:
-            - platform_build
-            - build_macos
-      - performance_ci_automation_not_integ:
-          <<: *context
-          <<: *not-on-integ-branch
-          requires:
-            - build
-      - performance_ci_automation:
-          <<: *context
-          <<: *on-integ-and-version-tags
-          requires:
-            - platform_build
-
-  nightly:
-    triggers:
-      - schedule:
-          cron: "07 20 * * *"
-          filters:
-            branches:
-              only: master
-    jobs:
-      - nightly_performance_automation:
-          <<: *context
+              #platform: [bionic, xenial, centos7, centos8]
+              platform: [bionic, xenial]
+#      - build-arm-platforms:
+#          <<: *on-integ-and-version-tags
+#          context: common
+#          matrix:
+#            parameters:
+#              platform: [bionic]
+#      - deploy_branch:
+#          <<: *context
+#          <<: *on-integ-branch
+#          requires:
+#            - platform_build
+#            - build_macos
+#      - release_automation:
+#          <<: *context
+#          <<: *on-version-tags
+#          requires:
+#            - deploy_release
+#      - deploy_release:
+#          <<: *context
+#          <<: *on-version-tags
+#          requires:
+#            - platform_build
+#            - build_macos
+#      - performance_ci_automation_not_integ:
+#          <<: *context
+#          <<: *not-on-integ-branch
+#          requires:
+#            - build
+#      - performance_ci_automation:
+#          <<: *context
+#          <<: *on-integ-and-version-tags
+#          requires:
+#            - platform_build
+#
+#  nightly:
+#    triggers:
+#      - schedule:
+#          cron: "07 20 * * *"
+#          filters:
+#            branches:
+#              only: master
+#    jobs:
+#      - nightly_performance_automation:
+#          <<: *context
