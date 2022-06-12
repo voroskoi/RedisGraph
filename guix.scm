@@ -7,8 +7,10 @@
           (list
             "zig@0.10"
             "peg"
-            "automake"
-            "autoconf"
+            "graphblas"
+            "redisearch"
+            "libcypher-parser"
+            "xxhash"
             "zls"))
         (package->development-manifest
           (specification->package "redisgraph"))))

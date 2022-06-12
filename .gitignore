@@ -66,3 +66,7 @@ deps/GraphBLAS/Config/GraphBLAS.h.tmp
 *.gcda
 *.gcno
 /cov/
+
+# zig
+zig-cache
+zig-out

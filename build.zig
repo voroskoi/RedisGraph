@@ -10,15 +10,16 @@ pub fn build(b: *std.build.Builder) void {
     const files = getSourceFiles(arena.allocator(), "src") catch unreachable;
     defer arena.allocator().free(files);
     
-    const lib = b.addSharedLibrary("redisgraph", "src/RG.h", .unversioned);
+    const lib = b.addSharedLibrary("redisgraph", null, .unversioned);
     lib.linkLibC();
-    lib.addCSourceFiles(files, &[_][]const u8{});
+    lib.addCSourceFiles(files, &[_]Str{});
+
     lib.addIncludePath("src");
-    lib.addIncludePath("deps/xxHash");
+    lib.addIncludePath("src/util");
+    lib.addIncludePath("src/ast");
+
+    lib.addCSourceFile("deps/rax/rax.c", &[_]Str{});
     lib.addIncludePath("deps/rax");
-    lib.addIncludePath("deps/libcypher-parser/lib/src");
-    lib.addIncludePath("deps/RediSearch/src");
-    lib.addIncludePath("deps/GraphBLAS/Include");
 
     lib.setBuildMode(mode);
     lib.install();
