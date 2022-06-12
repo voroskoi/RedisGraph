@@ -567,37 +567,37 @@ int SIValue_Compare(const SIValue a, const SIValue b, int *disjointOrNull) {
 
 /* Hashes the id and properties of the node*/
 XXH64_hash_t SINode_HashCode(const SIValue v) {
-	XXH_errorcode res;
-	XXH64_state_t state;
-	res = XXH64_reset(&state, 0);
+	XXH64_state_t* const state = XXH64_createState();
+	ASSERT(state != NULL);
+	XXH_errorcode const res = XXH64_reset(state, 0);
 	UNUSED(res);
 	ASSERT(res != XXH_ERROR);
 
 	Node *n = (Node *)v.ptrval;
 	int id = ENTITY_GET_ID(n);
 	SIType t = SI_TYPE(v);
-	XXH64_update(&state, &(t), sizeof(t));
-	XXH64_update(&state, &id, sizeof(id));
+	XXH64_update(state, &(t), sizeof(t));
+	XXH64_update(state, &id, sizeof(id));
 
-	XXH64_hash_t hashCode = XXH64_digest(&state);
+	XXH64_hash_t hashCode = XXH64_digest(state);
 	return hashCode;
 }
 
 /* Hashes the id and properties of the edge. */
 XXH64_hash_t SIEdge_HashCode(const SIValue v) {
-	XXH_errorcode res;
-	XXH64_state_t state;
-	res = XXH64_reset(&state, 0);
+	XXH64_state_t* const state = XXH64_createState();
+	ASSERT(state != NULL);
+	XXH_errorcode const res = XXH64_reset(state, 0);
 	UNUSED(res);
 	ASSERT(res != XXH_ERROR);
 
 	Edge *e = (Edge *)v.ptrval;
 	int id = ENTITY_GET_ID(e);
 	SIType t = SI_TYPE(v);
-	XXH64_update(&state, &(t), sizeof(t));
-	XXH64_update(&state, &id, sizeof(id));
+	XXH64_update(state, &(t), sizeof(t));
+	XXH64_update(state, &id, sizeof(id));
 
-	XXH64_hash_t hashCode = XXH64_digest(&state);
+	XXH64_hash_t hashCode = XXH64_digest(state);
 	return hashCode;
 }
 
@@ -668,8 +668,9 @@ void SIValue_HashUpdate(SIValue v, XXH64_state_t *state) {
 // hash SIValue
 XXH64_hash_t SIValue_HashCode(SIValue v) {
 	// initialize the hash state
-	XXH64_state_t state;
-	XXH_errorcode res = XXH64_reset(&state, 0);
+	XXH64_state_t* state = XXH64_createState();
+	ASSERT(state != NULL);
+	XXH_errorcode const res = XXH64_reset(state, 0);
 	UNUSED(res);
 	ASSERT(res != XXH_ERROR);
 
@@ -677,7 +678,7 @@ XXH64_hash_t SIValue_HashCode(SIValue v) {
 	SIValue_HashUpdate(v, &state);
 
 	// generate and return the hash
-	return XXH64_digest(&state);
+	return XXH64_digest(state);
 }
 
 void SIValue_Free(SIValue v) {

@@ -88,7 +88,8 @@ static void _ComputeGroupKey(OpAggregate *op, Record r) {
 // compute the hash code for list of SIValues
 static XXH64_hash_t _HashCode(const SIValue *v, size_t n) {
 	// initialize the hash state
-	XXH64_state_t state;
+	XXH64_state_t* const state = XXH64_createState();
+	ASSERT(state != NULL);
 	XXH_errorcode res = XXH64_reset(&state, 0);
 	ASSERT(res != XXH_ERROR);
 

@@ -21,7 +21,8 @@ static void DistinctFree(OpBase *opBase);
 // positions within the record
 static unsigned long long _compute_hash(OpDistinct *op, Record r) {
 	// initialize the hash state
-	XXH64_state_t state;
+	XXH64_state_t* const state = XXH64_createState();
+	ASSERT(state != NULL);
 	XXH_errorcode res = XXH64_reset(&state, 0);
 	ASSERT(res != XXH_ERROR);
 
