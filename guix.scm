@@ -6,11 +6,11 @@
   (list (specifications->manifest
           (list
             "zig@0.10"
+            "zls"
             "peg"
             "graphblas"
             "redisearch"
             "libcypher-parser"
-            "xxhash"
-            "zls"))
+            "xxhash"))
         (package->development-manifest
           (specification->package "redisgraph"))))
